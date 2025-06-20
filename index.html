@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Manager</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <style>
+        /* Global Styles */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .dark-mode {
+            background: #121212;
+            color: white;
+        }
+
+        .login-container {
+            background: white;
+            width: 500px;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .left-section {
+            width: 50%;
+            padding-right: 20px;
+            text-align: left;
+        }
+
+        .left-section h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .left-section p {
+            font-size: 14px;
+            color: #555;
+            margin-top: 10px;
+        }
+
+        .right-section {
+            width: 50%;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            border-radius: 15px;
+            padding: 30px;
+            color: white;
+            text-align: center;
+        }
+
+        .input-box {
+            position: relative;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .input-box input {
+            width: 100%;
+            padding: 12px;
+            padding-left: 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            background: #f5f5f5;
+            transition: 0.3s;
+        }
+
+        .input-box input:focus {
+            background: #e0e0e0;
+            transform: scale(1.05);
+        }
+
+        .input-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #6a11cb;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.3s;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .btn:hover {
+            background: linear-gradient(45deg, #4a0ea3, #1b6ef3);
+            transform: scale(1.1);
+        }
+
+        .right-section .decorative-bg {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            clip-path: polygon(50% 0%, 100% 0%, 100% 100%, 0% 100%);
+            border-radius: 15px;
+            z-index: -1;
+        }
+
+        .file-manager-container {
+            display: none;
+            width: 100%;
+            max-width: 2000px;
+            height: 100vh;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .dark-mode .file-manager-container {
+            background: #2c2c2c;
+            color: white;
+        }
+
+        .sidebar {
+            width: 150px;
+            background: #333;
+            padding: 20px;
+            color: white;
+        }
+
+        .dark-mode .sidebar {
+            background: #1e1e1e;
+        }
+
+        .sidebar h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            background: transparent;
+            color: white;
+            border: none;
+            font-size: 16px;
+            padding: 10px;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .tab-button:hover, .tab-button.active {
+            background: #3700b3;
+        }
+
+        .main-container {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .dark-mode .main-container {
+            background: #2c2c2c;
+            color: white;
+        }
+
+        .search-bar {
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .dark-mode .search-bar {
+            background: #444;
+            color: white;
+            border-color: #555;
+        }
+
+        .file-section {
+            display: none;
+        }
+
+        .file-section.active {
+            display: block;
+        }
+
+        .upload-box {
+            border: 2px dashed blue;
+            width: 100%;
+            max-width: 300px;
+            padding: 20px;
+            margin: 10px 0;
+            cursor: pointer;
+            background: #f9f9f9;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .upload-box {
+            background: #333;
+            border-color: #555;
+        }
+
+        .upload-box:hover {
+            background: #eee;
+        }
+
+        ul {
+            padding: 0;
+        }
+
+        ul li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .dark-mode ul li {
+            border-color: #555;
+        }
+
+        ul li:last-child {
+            border-bottom: none;
+        }
+
+        ul li button {
+            margin-left: 10px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #6200ea;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        ul li button:hover {
+            background: #3700b3;
+        }
+
+        .dark-mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .dark-mode-toggle:hover {
+            background: linear-gradient(45deg, #4a0ea3, #1b6ef3);
+            transform: scale(1.1);
+        }
+
+        #codes .upload-box {
+            border-color: #4caf50;
+        }
+
+        #codes .upload-box:hover {
+            background: #e8f5e9;
+        }
+
+        .dark-mode #codes .upload-box {
+            border-color: #66bb6a;
+        }
+
+        .dark-mode #codes .upload-box:hover {
+            background: #2e7d32;
+        }
+
+        /* Editor Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: auto;
+            position: relative;
+        }
+
+        .dark-mode .modal-content {
+            background-color: #333;
+            color: white;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .dark-mode .close-btn {
+            color: white;
+        }
+
+        .editor {
+            width: 100%;
+            height: 400px;
+            font-family: 'Courier New', monospace;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+            margin-bottom: 15px;
+        }
+
+        .dark-mode .editor {
+            background-color: #222;
+            color: white;
+            border-color: #555;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .save-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .cancel-btn {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div class="login-container" id="loginPage">
+        <div class="left-section">
+            <h1>Welcome Back!</h1>
+            <p>Sign in to your account and access your files.</p>
+            <form id="loginForm" onsubmit="login(event)">
+                <div class="input-box">
+                    <i class='bx bxs-envelope'></i>
+                    <input type="text" id="username" placeholder="E-mail" required>
+                </div>
+                <button type="submit" class="btn">Sign In</button>
+            </form>
+        </div>
+        <div class="right-section">
+            <div class="decorative-bg"></div>
+            <h2>Hello!</h2>
+            <p>Join us today and explore the features.</p>
+        </div>
+    </div>
+
+    <!-- File Manager Page -->
+    <div class="file-manager-container" id="fileManagerPage">
+        <div class="sidebar">
+            <h1>File Manager</h1>
+            <button class="tab-button active" onclick="showPage('all', this)">📂 All Files</button>
+            <button class="tab-button" onclick="showPage('pdfs', this)">📄 PDFs</button>
+            <button class="tab-button" onclick="showPage('photos', this)">🖼️ Photos</button>
+            <button class="tab-button" onclick="showPage('codes', this)">💻 Code Snippets</button>
+        </div>
+
+        <div class="main-container">
+            <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
+            <input type="text" class="search-bar" placeholder="Search files..." onkeyup="searchFiles()">
+            
+            <div id="pdfs" class="file-section">
+                <h2>PDF Files</h2>
+                <div class="upload-box" onclick="document.getElementById('pdfUpload').click()">📄 Drag & Drop PDFs here</div>
+                <input type="file" id="pdfUpload" accept="application/pdf" hidden onchange="uploadFile('pdf')">
+                <div class="spinner" id="pdfSpinner"></div>
+                <div class="upload-status" id="pdfStatus"></div>
+                <ul id="pdfList"></ul>
+            </div>
+
+            <div id="photos" class="file-section">
+                <h2>Photo Files</h2>
+                <div class="upload-box" onclick="document.getElementById('photoUpload').click()">🖼️ Drag & Drop Photos here</div>
+                <input type="file" id="photoUpload" accept="image/*" hidden onchange="uploadFile('photo')">
+                <div class="spinner" id="photoSpinner"></div>
+                <div class="upload-status" id="photoStatus"></div>
+                <ul id="photoList"></ul>
+            </div>
+
+            <div id="codes" class="file-section">
+                <h2>Code Snippets</h2>
+                <div class="upload-box" onclick="document.getElementById('codeUpload').click()">💻 Drag & Drop Code Files here</div>
+                <input type="file" id="codeUpload" accept=".txt,.js,.py,.html,.css" hidden onchange="uploadFile('code')">
+                <div class="spinner" id="codeSpinner"></div>
+                <div class="upload-status" id="codeStatus"></div>
+                <ul id="codeList"></ul>
+            </div>
+
+            <div id="all" class="file-section active">
+                <h2>All Files</h2>
+                <ul id="allList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Editor Modal -->
+    <div class="modal" id="editorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Edit File</div>
+                <button class="close-btn" onclick="closeEditor()">&times;</button>
+            </div>
+            <textarea id="codeEditor" class="editor"></textarea>
+            <div class="modal-actions">
+                <button class="modal-btn cancel-btn" onclick="closeEditor()">Cancel</button>
+                <button class="modal-btn save-btn" onclick="saveEditedFile()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentEditingFile = null;
+
+        // Login Functionality
+        function login(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+
+            if (username === 'admin') {
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('fileManagerPage').style.display = 'flex';
+                loadFiles(); // Load files after login
+            } else {
+                alert('Invalid username');
+            }
+        }
+
+        // File Upload Functionality
+        async function uploadFile(type) {
+            let input = type === 'pdf' ? document.getElementById('pdfUpload') : 
+                        type === 'photo' ? document.getElementById('photoUpload') : 
+                        document.getElementById('codeUpload');
+            let file = input.files[0];
+            if (!file) return;
+
+            // Show spinner and hide status
+            const spinner = type === 'pdf' ? document.getElementById('pdfSpinner') : 
+                            type === 'photo' ? document.getElementById('photoSpinner') : 
+                            document.getElementById('codeSpinner');
+            const status = type === 'pdf' ? document.getElementById('pdfStatus') : 
+                           type === 'photo' ? document.getElementById('photoStatus') : 
+                           document.getElementById('codeStatus');
+            spinner.style.display = 'block';
+            status.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await response.json();
+            spinner.style.display = 'none'; // Hide spinner
+            if (data.success) {
+                status.textContent = 'Uploaded successfully!';
+                status.style.display = 'block';
+                loadFiles(); // Reload files after upload
+            } else {
+                status.textContent = 'Upload failed. Please try again.';
+                status.style.display = 'block';
+            }
+        }
+
+        // Load Files Functionality
+        async function loadFiles() {
+            const response = await fetch('/files');
+            const data = await response.json();
+            const allList = document.getElementById('allList');
+            const pdfList = document.getElementById('pdfList');
+            const photoList = document.getElementById('photoList');
+            const codeList = document.getElementById('codeList');
+
+            allList.innerHTML = '';
+            pdfList.innerHTML = '';
+            photoList.innerHTML = '';
+            codeList.innerHTML = '';
+
+            data.files.forEach(file => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <span>${file}</span>
+                    <div>
+                        ${file.match(/\.(txt|js|py|html|css)$/i) ? `<button onclick="editFile('/uploads/${file}', '${file}')" style="padding:15px;">✏️ Edit</button>` : ''}
+                        ${file.match(/\.(txt|js|py|html|css)$/i) ? `<button onclick="copyCode('/uploads/${file}')" style="padding:15px;">📋 Copy Code</button>` : ''}
+                        <button onclick="downloadFile('/uploads/${file}')" style="padding:15px;">⬇️ Download</button>
+                        <button onclick="deleteFile('${file}')" style="padding:15px;">🗑️ Delete</button>
+                    </div>
+                `;
+
+                allList.appendChild(listItem.cloneNode(true));
+                if (file.endsWith('.pdf')) {
+                    pdfList.appendChild(listItem.cloneNode(true));
+                } else if (file.match(/\.(jpg|jpeg|png|gif)$/i)) {
+                    photoList.appendChild(listItem.cloneNode(true));
+                } else if (file.match(/\.(txt|js|py|html|css)$/i)) {
+                    codeList.appendChild(listItem.cloneNode(true));
+                }
+            });
+        }
+
+        // Delete File Functionality
+        async function deleteFile(filename) {
+            if (!confirm(`Are you sure you want to delete ${filename}?`)) return;
+            
+            const response = await fetch('/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ filename }),
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                loadFiles(); // Reload files after deletion
+            } else {
+                alert(data.message);
+            }
+        }
+
+        // Download File Functionality
+        function downloadFile(url) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = url.split('/').pop();
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Copy Code Functionality
+        async function copyCode(url) {
+            const response = await fetch(url);
+            const code = await response.text();
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Code copied to clipboard!');
+            }).catch(() => {
+                alert('Failed to copy code.');
+            });
+        }
+
+        // Edit File Functionality
+        async function editFile(url, filename) {
+            currentEditingFile = { url, filename };
+            
+            const response = await fetch(url);
+            const code = await response.text();
+            
+            document.getElementById('codeEditor').value = code;
+            document.getElementById('modalTitle').textContent = `Editing: ${filename}`;
+            document.getElementById('editorModal').style.display = 'flex';
+        }
+
+        // Save Edited File Functionality
+        async function saveEditedFile() {
+            if (!currentEditingFile) return;
+            
+            const editedContent = document.getElementById('codeEditor').value;
+            
+            const response = await fetch('/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    filename: currentEditingFile.filename,
+                    content: editedContent
+                }),
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                alert('File saved successfully!');
+                closeEditor();
+                loadFiles(); // Reload files to show changes
+            } else {
+                alert('Failed to save file: ' + data.message);
+            }
+        }
+
+        // Close Editor Functionality
+        function closeEditor() {
+            document.getElementById('editorModal').style.display = 'none';
+            currentEditingFile = null;
+        }
+
+        // Show Page Functionality
+        function showPage(page, btn) {
+            document.querySelectorAll('.file-section').forEach(section => section.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+            document.getElementById(page).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        // Search Files Functionality
+        function searchFiles() {
+            let input = document.querySelector('.search-bar').value.toLowerCase();
+            let items = document.querySelectorAll('ul li');
+            items.forEach(item => {
+                item.style.display = item.textContent.toLowerCase().includes(input) ? 'flex' : 'none';
+            });
+        }
+
+        // Toggle Dark Mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            // Save the dark mode state to localStorage
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+        }
+
+        // Load Dark Mode Preference on Page Load
+        function loadDarkModePreference() {
+            const darkMode = localStorage.getItem('darkMode');
+            if (darkMode === 'true') {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+        }
+
+        // Call loadDarkModePreference when the page loads
+        window.onload = function () {
+            loadDarkModePreference();
+            showPage('all', document.querySelector('.tab-button.active'));
+        };
+    </script>
+</body>
+</html>
